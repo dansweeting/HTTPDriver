@@ -25,21 +25,22 @@ namespace HTTPDriver.UnitTest
         }
 
         [Test]
-        [TestCase("http://www.test.com/Default.aspx", "http://www.test.com/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/1/2",  "http://www.test.com/1/2/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/1/2/", "http://www.test.com/1/2/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com", "http://www.test.com/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/", "http://www.test.com/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/1/2/3/Default.aspx", "http://www.test.com/1/2/3/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/1/2/3/Default.aspx?id=1", "http://www.test.com/1/2/3/Sub/RelativePage.aspx")]
-        [TestCase("http://www.test.com/query?id=1", "http://www.test.com/Sub/RelativePage.aspx")]
-        public void GoToUrlShouldHandleRelativeUrls(string initalUrl, string expectedUrl)
+        [TestCase("http://www.test.com/Default.aspx", "Sub/RelativePage.aspx", "http://www.test.com/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/1/2", "Sub/RelativePage.aspx", "http://www.test.com/1/2/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/1/2/", "Sub/RelativePage.aspx", "http://www.test.com/1/2/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com", "Sub/RelativePage.aspx", "http://www.test.com/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/", "Sub/RelativePage.aspx", "http://www.test.com/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/1/2/3/Default.aspx", "Sub/RelativePage.aspx", "http://www.test.com/1/2/3/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/1/2/3/Default.aspx?id=1", "Sub/RelativePage.aspx", "http://www.test.com/1/2/3/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/query?id=1", "Sub/RelativePage.aspx", "http://www.test.com/Sub/RelativePage.aspx")]
+        [TestCase("http://www.test.com/1/2/3/", "../Sub/RelativePage.aspx", "http://www.test.com/1/2/Sub/RelativePage.aspx")]
+        public void GoToUrlShouldHandleRelativeUrls(string initalUrl, string relativeUrl,  string expectedUrl)
         {
             _navigation.GoToUrl(initalUrl);
 
             Assert.That(_driver.Url, Is.EqualTo(initalUrl));
 
-            _navigation.GoToUrl("Sub/RelativePage.aspx");
+            _navigation.GoToUrl(relativeUrl);
 
             Assert.That(_driver.Url, Is.EqualTo(expectedUrl));
         }
