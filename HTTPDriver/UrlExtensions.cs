@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace HTTPDriver
 {
-    public static class UrlExtenstions
+    public static class UrlExtensions
     {
         /// <param name="currentUrl">Current absolute url</param>
         /// <param name="relative">Relative destination url</param>
