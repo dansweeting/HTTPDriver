@@ -38,16 +38,16 @@ namespace HTTPDriver
                 return;
 
             _navigation.GoToUrl(htmlAttribute.Value);
+			
+            if(_element.Name == "input" && _element.Attributes["type"].Value == "submit")
+            {
+                // submit the form
+            }
         }
 
         public string GetAttribute(string attributeName)
         {
             return _element.Attributes[attributeName].Value;
-        }
-
-        public string GetCssValue(string propertyName)
-        {
-            throw new System.NotImplementedException();
         }
 
         public string TagName
@@ -58,6 +58,22 @@ namespace HTTPDriver
         public string Text
         {
             get { return _element.InnerText.Trim(); }
+        }
+
+        public IWebElement FindElement(By @by)
+        {
+            return by.FindElement(new WebElementFinder(_element, _navigation));
+        }
+
+        public ReadOnlyCollection<IWebElement> FindElements(By @by)
+        {
+            return by.FindElements(new WebElementFinder(_element, _navigation));
+        }
+
+        #region client-side related things we don't intend to implement
+        public string GetCssValue(string propertyName)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool Enabled
@@ -84,15 +100,6 @@ namespace HTTPDriver
         {
             get { throw new System.NotImplementedException(); }
         }
-
-        public IWebElement FindElement(By @by)
-        {
-            return by.FindElement(new WebElementFinder(_element, _navigation));
-        }
-
-        public ReadOnlyCollection<IWebElement> FindElements(By @by)
-        {
-            return by.FindElements(new WebElementFinder(_element, _navigation));
-        }
+        #endregion
     }
 }

@@ -1,32 +1,43 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using HTTPDriver.Browser;
+using HTTPDriver.Browser.UnitTest;
 using HtmlAgilityPack;
-using OpenQA.Selenium;
+using Cookie = OpenQA.Selenium.Cookie;
 
 namespace HTTPDriver.UnitTest.Fakes
 {
     public class FakeWebResponder : IWebResponder
     {
-        private readonly HtmlParser _htmlParser;
+        private readonly string _htmlParser;
 
-        public FakeWebResponder(HtmlParser htmlParser)
+        public FakeWebResponder(string htmlParser)
         {
             _htmlParser = htmlParser;
         }
 
-        public string GetTitle()
+        public string PageSource
         {
-            return _htmlParser.GetTitle();
+            get { return _htmlParser; }
         }
 
-        public string GetPageSource()
+        public HtmlNode Page
         {
-            return _htmlParser.GetSourceCode();
+            get
+            {
+                var htmlBuilder = new HtmlNodeBuilder(PageSource);
+                return htmlBuilder.Build();
+            }
         }
 
-        public HtmlNode GetDocumentElement()
+        public HttpStatusCode StatusCode
         {
-            var htmlBuilder = new HtmlNodeBuilder(GetPageSource());
-            return htmlBuilder.Build();
+            get { return HttpStatusCode.OK; }
+        }
+
+        public WebHeaderCollection Headers
+        {
+            get { return null; }
         }
 
         public IEnumerable<Cookie> GetCookies()

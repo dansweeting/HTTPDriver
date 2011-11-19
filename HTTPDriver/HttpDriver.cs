@@ -1,35 +1,36 @@
 using System.Collections.ObjectModel;
+using System.Net;
+using HTTPDriver.Browser;
 using OpenQA.Selenium;
 
 namespace HTTPDriver
 {
     public class HttpDriver : IWebDriver
     {
-        private readonly IWebRequester _webRequester;
-        private IWebResponder _webResponder;
-        private INavigation _navigation;
-        
+        private readonly BrowserEngine _engine;
+        private readonly INavigation _navigation;
+
+        public WebHeaderCollection Headers { get { return _engine.Headers; } }
+        public HttpStatusCode StatusCode { get { return _engine.ResponseStatusCode; } }
+
         public HttpDriver(IWebRequester webRequester)
         {
-            _webRequester = webRequester;
+            _engine = new BrowserEngine(webRequester);
             _navigation = new Navigation(this);
         }
 
         public IWebElement FindElement(By by)
         {
-            var document = _webResponder.GetDocumentElement();
-            return by.FindElement(new WebElementFinder(document, Navigate()));
+            return by.FindElement(new WebElementFinder(_engine.Page.HtmlNode(), Navigate()));
         }
 
         public ReadOnlyCollection<IWebElement> FindElements(By @by)
         {
-            var document = _webResponder.GetDocumentElement();
-            return by.FindElements(new WebElementFinder(document, Navigate()));
+            return by.FindElements(new WebElementFinder(_engine.Page.HtmlNode(), Navigate()));
         }
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
         }
 
         public void Close()
@@ -44,7 +45,7 @@ namespace HTTPDriver
 
         public IOptions Manage()
         {
-            throw new System.NotImplementedException();
+            return new Manage(_engine.Cookies);
         }
 
         public INavigation Navigate()
@@ -61,12 +62,20 @@ namespace HTTPDriver
 
         public string Title
         {
-            get { return _webResponder.GetTitle().Trim(); }
+            get
+            {
+                return _engine.Page.Title();
+            }
         }
 
         public string PageSource
         {
-            get { return _webResponder.GetPageSource(); }
+            get { return _engine.Page.Html(); }
+        }
+
+        public void SendRequest()
+        {  
+            _engine.Load(Url);
         }
 
         public string CurrentWindowHandle
@@ -79,9 +88,9 @@ namespace HTTPDriver
             get { throw new System.NotImplementedException(); }
         }
 
-        public void SendRequest()
+        public BrowserEngine GetBrowser()
         {
-            _webResponder = _webRequester.Request(Url);
+            return _engine;
         }
     }
 }
