@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using HTTPDriver.Browser;
 
 namespace HTTPDriver.UnitTest.Fakes
 {
-    public class HttpDriverFakeWebRequester : IWebRequester
+    public class FakeWebRequester : IWebRequester
     {
         private readonly Dictionary<string, string> _responses = new Dictionary<string, string>();
 
@@ -14,7 +15,12 @@ namespace HTTPDriver.UnitTest.Fakes
 
         public IWebResponder Get(string url)
         {
-            return new FakeWebResponder(_responses[url]);
+            return new FakeWebResponder(_responses[url], url);
+        }
+
+        public void AddCookie(Cookie cookie)
+        {
+            
         }
     }
 }

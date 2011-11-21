@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using HTTPDriver.Browser.Cookies;
 
 namespace HTTPDriver.Browser
 {
@@ -28,25 +27,30 @@ namespace HTTPDriver.Browser
 
         private void GoTo(string location)
         {
+            foreach (var cookie in Cookies)
+                _requester.AddCookie(cookie);
+
             _webResponder = _requester.Get(location);
-            Location = new Uri(location);
+
+            Location = new Uri(_webResponder.Url.ToString());
             PopulateCookies();
         }
 
         private void PopulateCookies()
         {
-            if (ResponseHasCookie())
-                AddCookie();
+            if (ResponseHasCookies())
+                AddCookies();
         }
 
-        private bool ResponseHasCookie()
+        private bool ResponseHasCookies()
         {
-            return Headers != null && Headers[HttpResponseHeader.SetCookie] != null;
+            return _webResponder.Cookies.Count > 0;
         }
 
-        private void AddCookie()
+        private void AddCookies()
         {
-            Cookies.AddCookie(CookieParser.ParseCookie(Headers[HttpResponseHeader.SetCookie]));
+            foreach (Cookie cookie in _webResponder.Cookies)
+                Cookies.AddCookie(cookie);
         }
 
         public Uri Location { get; private set; }
@@ -59,11 +63,6 @@ namespace HTTPDriver.Browser
         public HttpStatusCode ResponseStatusCode
         {
             get { return _webResponder.StatusCode; }
-        }
-
-        public WebHeaderCollection Headers 
-        {
-            get { return _webResponder.Headers; }
         }
 
         public void SetCurrent(string url)
@@ -82,6 +81,11 @@ namespace HTTPDriver.Browser
         {
             _history.Forward();
             GoTo(_history.CurrentUrl());
+        }
+
+        public void AddCookie(Cookie cookie)
+        {
+            Cookies.AddCookie(cookie);
         }
     }
 }

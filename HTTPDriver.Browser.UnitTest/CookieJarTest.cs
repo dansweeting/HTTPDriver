@@ -1,7 +1,7 @@
 using System.Net;
-using HTTPDriver.Browser.Cookies;
 using NUnit.Framework;
-namespace HTTPDriver.Browser.UnitTest.Cookies
+
+namespace HTTPDriver.Browser.UnitTest
 {
     [TestFixture]
     public class CookieJarTest

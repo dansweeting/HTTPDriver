@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 
@@ -7,44 +6,43 @@ namespace HTTPDriver.Browser
 {
     public class WebRequester : IWebRequester
     {
-        private HttpWebRequest _request;
         private bool _shouldFollowRedirects=true;
+        private readonly IList<Cookie> _cookies = new List<Cookie>();
 
+        public IWebResponder Get(string url)
+        {
+            return Request(url)
+                .WithAllowAutoRedirect(_shouldFollowRedirects)
+                .WithCookies(_cookies)
+                .Submit();
+        }
+
+        public IWebResponder Post(string url, IDictionary<string, string>  postdata)
+        {
+            return Request(url)
+                .WithMethod("POST")
+                .WithContentType("application/x-www-form-urlencoded")
+                .WithContent(CreatePostDataString(postdata))
+                .Submit();
+        }
 
         public WebRequester AutomaticallyFollowRedirects(bool shouldFollowRedirects)
         {
             _shouldFollowRedirects = shouldFollowRedirects;
             return this;
         }
-        
-        public IWebResponder Get(string url)
+
+        public void AddCookie(Cookie cookie)
         {
-            Create(url);
-            return new WebResponder(_request.GetResponse());
+            _cookies.Add(cookie);
         }
 
-        public IWebResponder Post(string url, IDictionary<string, string>  postdata)
+        private RequestBuilder Request(string url)
         {
-            Create(url);
-            _request.Method = "post";
-            _request.ContentType = "application/x-www-form-urlencoded";
-
-            var postDataString = CreatePostDataString(postdata);
-            _request.ContentLength = postDataString.Length;
-            var stream = new StreamWriter(_request.GetRequestStream());
-            stream.Write(postDataString);
-            stream.Close();
-
-            return new WebResponder(_request.GetResponse());
+            return new RequestBuilder(url);
         }
 
-        private void Create(string url)
-        {
-            _request = (HttpWebRequest) WebRequest.Create(url);
-            _request.AllowAutoRedirect = _shouldFollowRedirects;
-        }
-
-        private string CreatePostDataString(IDictionary<string, string> postdata)
+        private string CreatePostDataString(IEnumerable<KeyValuePair<string, string>> postdata)
         {
             return string.Join("&", (from value in postdata
                     select value.Key + "=" + value.Value).ToArray());

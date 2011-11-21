@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace HTTPDriver.Browser.UnitTest
 {
     [TestFixture]
-    public class BrowserHistoryTest
+    public class HistoryTest
     {
         private BrowserEngine _browser;
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Net;
 using HtmlAgilityPack;
 
@@ -7,12 +7,17 @@ namespace HTTPDriver.Browser.UnitTest.Fakes
     public class FakeWebResponder : IWebResponder
     {
         private readonly HtmlNode _document;
+        private readonly string _url;
         private readonly WebHeaderCollection _header;
+        private readonly CookieCollection _cookies;
 
-        public FakeWebResponder(HtmlNode document)
+        public FakeWebResponder(HtmlNode document, string url)
         {
             _document = document;
+            _url = url;
             _header = new WebHeaderCollection();
+            _cookies = new CookieCollection();
+
         }
 
         public HtmlNode Page
@@ -30,15 +35,19 @@ namespace HTTPDriver.Browser.UnitTest.Fakes
             get { return _header; }
         }
 
-        public void AddCookies(IEnumerable<string> cookiesToSet)
+        public CookieCollection Cookies
         {
-            foreach (var cookie in cookiesToSet)
-                AddCookie(cookie);
+            get { return _cookies; }
         }
 
-        public void AddCookie(string cookieToSet)
+        public Uri Url
         {
-            Headers.Add(HttpResponseHeader.SetCookie, cookieToSet);
+            get { return new Uri(_url); }
+        }
+
+        public void AddCookie(Cookie cookie)
+        {
+            _cookies.Add(cookie);
         }
     }
 }
